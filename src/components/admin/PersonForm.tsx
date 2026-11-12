@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useKeptForm } from "@/lib/use-kept-form";
 import type { FormState } from "@/app/(app)/people/actions";
 import { Icon } from "@/components/ui/Icon";
 
@@ -26,7 +26,7 @@ export function PersonForm({
   groups?: GroupOption[];
   submitLabel: string;
 }) {
-  const [state, formAction, pending] = useActionState(action, null);
+  const [state, onSubmit, pending] = useKeptForm(action, null);
   const err = (k: string) => state?.errors?.[k as keyof NonNullable<FormState>["errors"]];
   const field = (name: keyof Person, label: string, opts: { type?: string; placeholder?: string; required?: boolean; span?: boolean } = {}) => (
     <div className={`form-field${opts.span ? " span-2" : ""}${err(name) ? " bad" : ""}`}>
@@ -48,7 +48,7 @@ export function PersonForm({
   );
 
   return (
-    <form action={formAction} className="form-grid" noValidate>
+    <form onSubmit={onSubmit} className="form-grid" noValidate>
       {field("full_name", "Full name", { required: true, placeholder: "Dr. Sara Malik", span: true })}
       {field("email", "Work email", { type: "email", required: true, placeholder: "s.malik@northfield.edu", span: true })}
       {field("title", "Title", { placeholder: "Assistant Professor" })}

@@ -10,6 +10,7 @@ const NAV: { href: string; label: string; icon: IconName }[] = [
   { href: "/", label: "Overview", icon: "home" },
   { href: "/groups", label: "Groups", icon: "layers" },
   { href: "/people", label: "People", icon: "users" },
+  { href: "/profile/edit", label: "My profile", icon: "user" },
   { href: "/design", label: "Design system", icon: "palette" },
 ];
 
@@ -47,7 +48,7 @@ export function Sidebar() {
       </Suspense>
       <div className="side-foot">
         <p className="side-note">
-          <b>Phase 3 build.</b> Admin tools work. Profile editing arrives in Phase 4.
+          <b>Phase 4 build.</b> Edit your profile from My profile. The 3D profile page arrives in Phase 5.
         </p>
       </div>
     </aside>

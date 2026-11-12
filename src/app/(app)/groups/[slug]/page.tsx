@@ -6,7 +6,9 @@ import { ConfirmButton } from "@/components/admin/ConfirmButton";
 import { GroupForm } from "@/components/admin/GroupForm";
 import { MemberPicker } from "@/components/admin/MemberPicker";
 import { Icon } from "@/components/ui/Icon";
-import { initials, requireAccount } from "@/lib/auth";
+import { Avatar } from "@/components/ui/Avatar";
+import { requireAccount } from "@/lib/auth";
+import { signedUrls } from "@/lib/photos";
 import { createClient } from "@/lib/supabase/server";
 import { GROUP_COLOR_VAR, STATUS_LABEL } from "@/lib/ui";
 
@@ -33,7 +35,7 @@ async function Group({ params, searchParams }: { params: PageProps<"/groups/[slu
   const supabase = await createClient();
   const { data: group } = await supabase
     .from("groups")
-    .select("id, slug, name, short_code, description, color, lead_id, founded_year, archived_at, group_members(person_id, added_at, people(id, full_name, title, department, status))")
+    .select("id, slug, name, short_code, description, color, lead_id, founded_year, archived_at, group_members(person_id, added_at, people(id, full_name, title, department, status, photo_path))")
     .eq("slug", slug)
     .maybeSingle();
 
@@ -53,6 +55,7 @@ async function Group({ params, searchParams }: { params: PageProps<"/groups/[slu
     .filter((p) => p !== null)
     .sort((a, b) => Number(b.id === group.lead_id) - Number(a.id === group.lead_id) || a.full_name.localeCompare(b.full_name));
   const lead = members.find((m) => m.id === group.lead_id);
+  const photos = await signedUrls(supabase, "photos", members.map((m) => m.photo_path));
 
   const header = (
     <header className="page-head">
@@ -140,9 +143,7 @@ async function Group({ params, searchParams }: { params: PageProps<"/groups/[slu
               {members.map((m) => (
                 <li key={m.id}>
                   <Link href={`/people/${m.id}`} className="who">
-                    <span className="av" style={{ ["--s" as string]: "38px" }} aria-hidden="true">
-                      {initials(m.full_name)}
-                    </span>
+                    <Avatar name={m.full_name} src={photos.get(m.photo_path ?? "")} size={38} />
                     <span style={{ minWidth: 0 }}>
                       <b>
                         {m.full_name}

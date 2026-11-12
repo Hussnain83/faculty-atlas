@@ -5,7 +5,9 @@ import { setPersonActive, updatePerson } from "@/app/(app)/people/actions";
 import { ConfirmButton } from "@/components/admin/ConfirmButton";
 import { PersonForm } from "@/components/admin/PersonForm";
 import { Icon } from "@/components/ui/Icon";
-import { initials, requireAccount } from "@/lib/auth";
+import { Avatar } from "@/components/ui/Avatar";
+import { requireAccount } from "@/lib/auth";
+import { signedUrls } from "@/lib/photos";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { GROUP_COLOR_VAR, STATUS_LABEL } from "@/lib/ui";
@@ -33,7 +35,7 @@ async function Person({ params, searchParams }: { params: PageProps<"/people/[id
   const supabase = await createClient();
   const { data: person } = await supabase
     .from("people")
-    .select("id, user_id, full_name, email, title, department, office, phone_ext, joined_year, status, bio, created_at, group_members(group_id, groups(id, slug, name, short_code, color))")
+    .select("id, user_id, full_name, email, title, department, office, phone_ext, joined_year, status, bio, photo_path, created_at, group_members(group_id, groups(id, slug, name, short_code, color))")
     .eq("id", /^[0-9a-f-]{36}$/i.test(id) ? id : "00000000-0000-0000-0000-000000000000")
     .maybeSingle();
 
@@ -52,6 +54,8 @@ async function Person({ params, searchParams }: { params: PageProps<"/people/[id
 
   const status = STATUS_LABEL[person.status];
   const groups = person.group_members.map((m) => m.groups).filter((g) => g !== null);
+
+  const photo = (await signedUrls(supabase, "photos", [person.photo_path])).get(person.photo_path ?? "") ?? null;
 
   let lastSignIn: string | null = null;
   if (account.isAdmin && person.user_id) {
@@ -72,9 +76,7 @@ async function Person({ params, searchParams }: { params: PageProps<"/people/[id
       )}
       <header className="page-head">
         <div className="who-head">
-          <span className="av" style={{ ["--s" as string]: "72px" }} aria-hidden="true">
-            {initials(person.full_name)}
-          </span>
+          <Avatar name={person.full_name} src={photo} size={72} />
           <div>
             <p className="eyebrow">{person.department || "Directory entry"}</p>
             <h1>{person.full_name}</h1>
@@ -135,6 +137,10 @@ async function Person({ params, searchParams }: { params: PageProps<"/people/[id
               </p>
             )}
             <div className="actions">
+              <Link className="btn btn-sm" href={`/profile/edit?person=${person.id}`}>
+                <Icon name="edit" />
+                Edit profile
+              </Link>
               {person.status === "deactivated" ? (
                 <ConfirmButton
                   run={setPersonActive.bind(null, person.id, true)}

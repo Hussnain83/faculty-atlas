@@ -16,6 +16,7 @@ import {
 import { AuthTabs } from "@/components/auth/AuthTabs";
 import { Confetti, DoneBadge, Field, OtpInput, PasswordFields, Stepper, SubmitButton, useShake } from "@/components/auth/parts";
 import { Icon } from "@/components/ui/Icon";
+import { cropPhoto } from "@/lib/image";
 
 type Step = 1 | 2 | 3 | 4 | 5;
 type Skill = { skill: string; category: "research" | "tools" };
@@ -24,27 +25,6 @@ const initialsOf = (name: string) => {
   const parts = name.replace(/^(Dr\.|Prof\.)\s+/, "").split(/\s+/).filter(Boolean);
   return ((parts[0]?.[0] ?? "") + (parts.length > 1 ? parts[parts.length - 1][0] : "")).toUpperCase();
 };
-
-/** Crop to a centred square and re-encode as a 480px JPEG before upload. */
-async function cropPhoto(file: File): Promise<Blob> {
-  const url = URL.createObjectURL(file);
-  try {
-    const img = await new Promise<HTMLImageElement>((resolve, reject) => {
-      const el = new Image();
-      el.onload = () => resolve(el);
-      el.onerror = reject;
-      el.src = url;
-    });
-    const size = 480;
-    const m = Math.min(img.width, img.height);
-    const canvas = document.createElement("canvas");
-    canvas.width = canvas.height = size;
-    canvas.getContext("2d")!.drawImage(img, (img.width - m) / 2, (img.height - m) / 2, m, m, 0, 0, size, size);
-    return await new Promise<Blob>((resolve, reject) => canvas.toBlob((b) => (b ? resolve(b) : reject(new Error("crop failed"))), "image/jpeg", 0.88));
-  } finally {
-    URL.revokeObjectURL(url);
-  }
-}
 
 export function ActivationFlow({ demo, resume }: { demo: boolean; resume: ProfileDraft | null }) {
   const router = useRouter();

@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
 import { Icon } from "@/components/ui/Icon";
-import { initials, requireAccount } from "@/lib/auth";
+import { Avatar } from "@/components/ui/Avatar";
+import { requireAccount } from "@/lib/auth";
+import { signedUrls } from "@/lib/photos";
 import { createClient } from "@/lib/supabase/server";
 import { GROUP_COLOR_VAR, safeSearch, STATUS_LABEL } from "@/lib/ui";
 
@@ -30,7 +32,7 @@ async function People({ searchParams }: { searchParams: PageProps<"/people">["se
   const supabase = await createClient();
   let query = supabase
     .from("people")
-    .select("id, full_name, email, title, department, status, joined_year, group_members(group_id, groups(id, short_code, color, name))")
+    .select("id, full_name, email, title, department, status, joined_year, photo_path, group_members(group_id, groups(id, short_code, color, name))")
     .order("full_name");
   if (q) query = query.or(`full_name.ilike.%${q}%,email.ilike.%${q}%,department.ilike.%${q}%,title.ilike.%${q}%`);
   if (admin && ["active", "invited", "deactivated"].includes(status)) query = query.eq("status", status as "active");
@@ -38,6 +40,7 @@ async function People({ searchParams }: { searchParams: PageProps<"/people">["se
 
   const people = (data ?? []).filter((p) => !group || p.group_members.some((m) => m.group_id === group));
   const filtered = Boolean(q || status || group);
+  const photos = await signedUrls(supabase, "photos", people.map((x) => x.photo_path));
 
   return (
     <>
@@ -142,9 +145,7 @@ async function People({ searchParams }: { searchParams: PageProps<"/people">["se
                 <tr key={p.id}>
                   <td>
                     <Link href={`/people/${p.id}`} className="who">
-                      <span className="av" style={{ ["--s" as string]: "36px" }} aria-hidden="true">
-                        {initials(p.full_name)}
-                      </span>
+                      <Avatar name={p.full_name} src={photos.get(p.photo_path ?? "")} size={36} />
                       <span>
                         <b>{p.full_name}</b>
                         <small>{p.email}</small>
@@ -184,9 +185,7 @@ async function People({ searchParams }: { searchParams: PageProps<"/people">["se
         <ul className="people-list">
           {people.map((p) => (
             <li key={p.id} className="glass">
-              <span className="av" style={{ ["--s" as string]: "44px" }} aria-hidden="true">
-                {initials(p.full_name)}
-              </span>
+              <Avatar name={p.full_name} src={photos.get(p.photo_path ?? "")} size={44} />
               <span style={{ minWidth: 0 }}>
                 <b>{p.full_name}</b>
                 <small>

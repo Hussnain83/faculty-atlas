@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useKeptForm } from "@/lib/use-kept-form";
 import type { GroupFormState } from "@/app/(app)/groups/actions";
 import { Icon } from "@/components/ui/Icon";
 import { GROUP_COLORS } from "@/lib/validation";
@@ -16,10 +16,10 @@ export function GroupForm({
   group?: Group;
   submitLabel: string;
 }) {
-  const [state, formAction, pending] = useActionState(action, null);
+  const [state, onSubmit, pending] = useKeptForm(action, null);
   const err = (k: "name" | "short_code" | "description" | "founded_year") => state?.errors?.[k];
   return (
-    <form action={formAction} className="form-grid" noValidate>
+    <form onSubmit={onSubmit} className="form-grid" noValidate>
       <div className={`form-field span-2${err("name") ? " bad" : ""}`}>
         <label htmlFor="gf-name">
           Group name<span className="req"> required</span>
