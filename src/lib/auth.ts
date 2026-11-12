@@ -1,6 +1,7 @@
 import "server-only";
 import { cache } from "react";
 import { redirect } from "next/navigation";
+import { connection } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import type { Database } from "@/lib/supabase/database.types";
 
@@ -22,6 +23,9 @@ export type Account = {
 
 /** The signed-in account, read once per request. Returns null when signed out. */
 export const getAccount = cache(async (): Promise<Account | null> => {
+  // Session checks compare token expiry with the clock, so they must run at request time,
+  // never while Next.js prefetches the page shell.
+  await connection();
   const supabase = await createClient();
   const {
     data: { user },

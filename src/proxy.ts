@@ -30,8 +30,13 @@ export async function proxy(request: NextRequest) {
     },
   });
 
-  const { data } = await supabase.auth.getClaims();
-  const signedIn = Boolean(data?.claims);
+  // getUser() asks Supabase whether the session is still valid. A local token check alone can
+  // disagree with the server (e.g. after a password change revokes the session), which would
+  // bounce the browser between /login and the app forever.
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const signedIn = Boolean(user);
   const path = request.nextUrl.pathname;
   const onAuthPage = AUTH_PAGES.some((p) => path === p || path.startsWith(`${p}/`));
 

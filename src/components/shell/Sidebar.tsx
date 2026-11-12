@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Suspense } from "react";
 import { BrandMark } from "@/components/ui/BrandMark";
 import { Icon, type IconName } from "@/components/ui/Icon";
 
@@ -12,10 +13,26 @@ const NAV: { href: string; label: string; icon: IconName }[] = [
   { href: "/design", label: "Design system", icon: "palette" },
 ];
 
-export function Sidebar() {
-  const path = usePathname();
-  const isActive = (href: string) => (href === "/" ? path === "/" : path.startsWith(href));
+function Nav({ path }: { path: string | null }) {
+  const isActive = (href: string) => path !== null && (href === "/" ? path === "/" : path.startsWith(href));
+  return (
+    <nav className="nav" aria-label="Main">
+      {NAV.map((item) => (
+        <Link key={item.href} href={item.href} title={item.label} aria-current={isActive(item.href) ? "page" : undefined}>
+          <Icon name={item.icon} width={19} height={19} />
+          <span>{item.label}</span>
+        </Link>
+      ))}
+    </nav>
+  );
+}
 
+/** Reads the URL, so it sits behind Suspense; the plain nav shows until it resolves. */
+function ActiveNav() {
+  return <Nav path={usePathname()} />;
+}
+
+export function Sidebar() {
   return (
     <aside className="side">
       <Link className="brand" href="/" aria-label="Faculty Atlas home">
@@ -25,22 +42,12 @@ export function Sidebar() {
           <small>Northfield University</small>
         </div>
       </Link>
-      <nav className="nav" aria-label="Main">
-        {NAV.map((item) => (
-          <Link
-            key={item.href}
-            href={item.href}
-            title={item.label}
-            aria-current={isActive(item.href) ? "page" : undefined}
-          >
-            <Icon name={item.icon} width={19} height={19} />
-            <span>{item.label}</span>
-          </Link>
-        ))}
-      </nav>
+      <Suspense fallback={<Nav path={null} />}>
+        <ActiveNav />
+      </Suspense>
       <div className="side-foot">
         <p className="side-note">
-          <b>Phase 2 build.</b> Sign-in works. Admin tools and full profiles arrive in the next phases.
+          <b>Phase 3 build.</b> Admin tools work. Profile editing arrives in Phase 4.
         </p>
       </div>
     </aside>

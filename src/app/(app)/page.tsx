@@ -15,7 +15,7 @@ const PHASES: { n: number; title: string; text: string }[] = [
   { n: 8, title: "Quality pass", text: "Mobile, accessibility, speed, tests, security" },
   { n: 9, title: "Launch", text: "Production data, email, domain, handover" },
 ];
-const CURRENT_PHASE = 2;
+const CURRENT_PHASE = 3;
 
 export default function OverviewPage() {
   return (
@@ -70,7 +70,7 @@ function Greeting({ name, admin }: { name: string; admin?: boolean }) {
         <h1>{name ? `Good to see you, ${name}` : "Welcome"}</h1>
         <p className="lede">
           {admin
-            ? "You can see everyone in the directory. Admin tools for people and groups arrive in Phase 3."
+            ? "You can see everyone in the directory. Register people and manage groups from People and Groups."
             : "You see the people who share a research group with you. Full profiles arrive in Phase 5."}
         </p>
       </div>
