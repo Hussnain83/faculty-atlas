@@ -184,7 +184,8 @@ async function People({ searchParams }: { searchParams: PageProps<"/people">["se
       ) : (
         <ul className="people-list">
           {people.map((p) => (
-            <li key={p.id} className="glass">
+            <li key={p.id} className="glass person-card">
+              <Link className="stretch" href={`/people/${p.id}`} aria-label={`Open ${p.full_name}'s profile`} />
               <Avatar name={p.full_name} src={photos.get(p.photo_path ?? "")} size={44} />
               <span style={{ minWidth: 0 }}>
                 <b>{p.full_name}</b>

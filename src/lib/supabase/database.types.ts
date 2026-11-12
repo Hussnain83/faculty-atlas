@@ -246,6 +246,11 @@ isOneToOne: false
               "department": string,"full_name": string,"is_admin": boolean,"person_id": string,"photo_path": string,"status": Database["public"]['Enums']["person_status"],"title": string
             }[]
                            },
+"person_publications":
+{ Args: { "pid": string }; Returns: {
+              "authors": Json,"citations": number,"doi": string,"external_authors": (string)[],"id": string,"kind": Database["public"]['Enums']["publication_kind"],"title": string,"venue": string,"year": number
+            }[]
+                           },
 "publication_author_names":
 { Args: { "pub": string }; Returns: {
               "author_order": number,"display_name": string,"person_id": string,"visible": boolean

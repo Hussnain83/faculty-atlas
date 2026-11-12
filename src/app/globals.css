@@ -1042,3 +1042,6 @@ a.who:hover b { color: var(--lagoon-deep); }
   .skill-row { grid-template-columns: minmax(0, 1fr); gap: 6px; }
   .complete-card { flex-direction: column; align-items: flex-start; }
 }
+
+.person-card { position: relative; }
+.person-card .chips { position: relative; z-index: 2; }

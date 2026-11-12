@@ -47,7 +47,7 @@ export async function registerPerson(_prev: FormState, form: FormData): Promise<
   if (groupIds.length) {
     await supabase.from("group_members").insert(groupIds.map((group_id) => ({ group_id, person_id: person.id })));
   }
-  redirect(`/people/${person.id}?created=1`);
+  redirect(`/people/${person.id}/manage?created=1`);
 }
 
 export async function updatePerson(personId: string, _prev: FormState, form: FormData): Promise<FormState> {
