@@ -40,7 +40,7 @@ export function Sidebar() {
       </nav>
       <div className="side-foot">
         <p className="side-note">
-          <b>Phase 0 build.</b> Sign-in and real data arrive in the next phases.
+          <b>Phase 2 build.</b> Sign-in works. Admin tools and full profiles arrive in the next phases.
         </p>
       </div>
     </aside>

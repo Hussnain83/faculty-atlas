@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { Icon } from "@/components/ui/Icon";
 import { SupabaseStatus } from "@/components/shell/SupabaseStatus";
+import { UserChip } from "@/components/shell/UserChip";
 
 export function Topbar() {
   return (
@@ -22,6 +23,9 @@ export function Topbar() {
         }
       >
         <SupabaseStatus />
+      </Suspense>
+      <Suspense fallback={null}>
+        <UserChip />
       </Suspense>
     </div>
   );

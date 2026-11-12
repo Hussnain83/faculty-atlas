@@ -1,5 +1,7 @@
-import Link from "next/link";
+import { Suspense } from "react";
 import { Icon, type IconName } from "@/components/ui/Icon";
+import { displayName, requireAccount } from "@/lib/auth";
+import { createClient } from "@/lib/supabase/server";
 
 const PHASES: { n: number; title: string; text: string }[] = [
   { n: 0, title: "Foundations", text: "Design system, app shell, database connection, live link" },
@@ -13,46 +15,18 @@ const PHASES: { n: number; title: string; text: string }[] = [
   { n: 8, title: "Quality pass", text: "Mobile, accessibility, speed, tests, security" },
   { n: 9, title: "Launch", text: "Production data, email, domain, handover" },
 ];
-
-const TILES: { label: string; icon: IconName; c: string; note: string }[] = [
-  { label: "People in directory", icon: "users", c: "var(--lagoon)", note: "Counts appear in Phase 1" },
-  { label: "Research groups", icon: "layers", c: "var(--coral)", note: "Counts appear in Phase 1" },
-  { label: "Publications", icon: "book", c: "var(--iris)", note: "Counts appear in Phase 1" },
-  { label: "CVs uploaded", icon: "file", c: "var(--saffron)", note: "Counts appear in Phase 4" },
-];
+const CURRENT_PHASE = 2;
 
 export default function OverviewPage() {
   return (
     <section className="view">
-      <header className="page-head">
-        <div>
-          <p className="eyebrow">Overview</p>
-          <h1>Faculty Atlas is taking shape</h1>
-          <p className="lede">
-            This is the real app, built from the approved prototype. The look and layout are in place; the data, sign-in
-            and 3D pages arrive phase by phase.
-          </p>
-        </div>
-        <div className="actions">
-          <Link className="btn btn-primary" href="/design">
-            <Icon name="palette" />
-            See the design system
-          </Link>
-        </div>
-      </header>
+      <Suspense fallback={<Greeting name="" />}>
+        <GreetingForUser />
+      </Suspense>
 
-      <section className="kpis" aria-label="Headline numbers">
-        {TILES.map((t) => (
-          <div key={t.label} className="kpi glass" style={{ ["--c" as string]: t.c }}>
-            <span className="k-label">
-              <Icon name={t.icon} />
-              {t.label}
-            </span>
-            <span className="k-num">–</span>
-            <span className="k-sub">{t.note}</span>
-          </div>
-        ))}
-      </section>
+      <Suspense fallback={<Tiles values={null} admin />}>
+        <LiveTiles />
+      </Suspense>
 
       <section className="card glass">
         <div className="c-head">
@@ -63,13 +37,13 @@ export default function OverviewPage() {
             Build plan
           </h2>
           <span className="chip" style={{ ["--c" as string]: "var(--mint)" }}>
-            Phase 0 in progress
+            Phase {CURRENT_PHASE} in progress
           </span>
         </div>
         <ol className="roadmap">
           {PHASES.map((p) => (
-            <li key={p.n} data-state={p.n === 0 ? "now" : "next"}>
-              <span className="n">{p.n}</span>
+            <li key={p.n} data-state={p.n === CURRENT_PHASE ? "now" : "next"}>
+              <span className="n">{p.n < CURRENT_PHASE ? <Icon name="check" width={14} height={14} /> : p.n}</span>
               <span>
                 <b>{p.title}</b>
                 {p.text}
@@ -78,6 +52,63 @@ export default function OverviewPage() {
           ))}
         </ol>
       </section>
+    </section>
+  );
+}
+
+async function GreetingForUser() {
+  const account = await requireAccount();
+  const name = displayName(account).replace(/^(Dr\.|Prof\.)\s+/, "").split(" ")[0];
+  return <Greeting name={name} admin={account.isAdmin} />;
+}
+
+function Greeting({ name, admin }: { name: string; admin?: boolean }) {
+  return (
+    <header className="page-head">
+      <div>
+        <p className="eyebrow">Overview</p>
+        <h1>{name ? `Good to see you, ${name}` : "Welcome"}</h1>
+        <p className="lede">
+          {admin
+            ? "You can see everyone in the directory. Admin tools for people and groups arrive in Phase 3."
+            : "You see the people who share a research group with you. Full profiles arrive in Phase 5."}
+        </p>
+      </div>
+    </header>
+  );
+}
+
+/** Real counts from the database. Row-level security decides what each person is allowed to count. */
+async function LiveTiles() {
+  const account = await requireAccount();
+  const supabase = await createClient();
+  const count = async (table: "people" | "groups" | "publications" | "cvs") => {
+    const { count } = await supabase.from(table).select("*", { count: "exact", head: true });
+    return count ?? 0;
+  };
+  const [people, groups, papers, cvs] = await Promise.all([count("people"), count("groups"), count("publications"), count("cvs")]);
+  return <Tiles values={{ people, groups, papers, cvs }} admin={account.isAdmin} />;
+}
+
+function Tiles({ values, admin }: { values: { people: number; groups: number; papers: number; cvs: number } | null; admin: boolean }) {
+  const tiles: { label: string; icon: IconName; c: string; value?: number; note: string }[] = [
+    { label: admin ? "People in directory" : "People you can see", icon: "users", c: "var(--lagoon)", value: values?.people, note: admin ? "Everyone registered" : "You plus your group colleagues" },
+    { label: "Research groups", icon: "layers", c: "var(--coral)", value: values?.groups, note: "Names are visible to everyone" },
+    { label: "Publications", icon: "book", c: "var(--iris)", value: values?.papers, note: admin ? "Across the faculty" : "By people you can see" },
+    { label: "CVs uploaded", icon: "file", c: "var(--saffron)", value: values?.cvs, note: "CV upload arrives in Phase 4" },
+  ];
+  return (
+    <section className="kpis" aria-label="Headline numbers">
+      {tiles.map((t) => (
+        <div key={t.label} className="kpi glass" style={{ ["--c" as string]: t.c }}>
+          <span className="k-label">
+            <Icon name={t.icon} />
+            {t.label}
+          </span>
+          <span className="k-num">{t.value ?? "–"}</span>
+          <span className="k-sub">{t.note}</span>
+        </div>
+      ))}
     </section>
   );
 }

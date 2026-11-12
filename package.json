@@ -9,6 +9,8 @@
     "lint": "eslint",
     "db:push": "supabase db push --remote",
     "db:seed:generate": "node scripts/generate-seed.mjs",
+    "db:accounts": "node --env-file=.env.local scripts/create-auth-accounts.mjs",
+    "db:accounts:reset": "node --env-file=.env.local scripts/create-auth-accounts.mjs --reset-passwords",
     "db:test": "supabase db query --remote --yes --file supabase/tests/privacy_rules.sql",
     "db:types": "supabase gen types typescript --linked --schema public > src/lib/supabase/database.types.ts"
   },
@@ -17,7 +19,8 @@
     "@supabase/supabase-js": "^2.119.0",
     "next": "16.4.6",
     "react": "19.3.0",
-    "react-dom": "19.3.0"
+    "react-dom": "19.3.0",
+    "server-only": "^0.0.1"
   },
   "devDependencies": {
     "@tailwindcss/turbopack": "4.3.3",
@@ -26,6 +29,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.4.6",
+    "supabase": "^3.1.0",
     "tailwindcss": "4.3.3",
     "typescript": "^5"
   }

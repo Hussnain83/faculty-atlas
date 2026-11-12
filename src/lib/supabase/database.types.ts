@@ -235,8 +235,16 @@ isOneToOne: false
             [_ in never]: never
           }
           Functions: {
-            "log_activity":
+            "activate_my_account":
+{ Args: Record<PropertyKey, never>; Returns: boolean
+                           },
+"log_activity":
 { Args: { "p_actor": string,"p_kind": Database["public"]['Enums']["activity_kind"],"p_subject": string,"p_summary": string }; Returns: undefined
+                           },
+"my_account":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "department": string,"full_name": string,"is_admin": boolean,"person_id": string,"photo_path": string,"status": Database["public"]['Enums']["person_status"],"title": string
+            }[]
                            },
 "publication_author_names":
 { Args: { "pub": string }; Returns: {
