@@ -6,7 +6,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "db:push": "supabase db push --remote",
+    "db:seed:generate": "node scripts/generate-seed.mjs",
+    "db:test": "supabase db query --remote --yes --file supabase/tests/privacy_rules.sql",
+    "db:types": "supabase gen types typescript --linked --schema public > src/lib/supabase/database.types.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
