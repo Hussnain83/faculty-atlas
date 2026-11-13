@@ -9,7 +9,7 @@ import { Icon } from "@/components/ui/Icon";
 /** Pieces shared by the profile and group pages. */
 
 export const fmt = (n: number) => n.toLocaleString("en-US");
-export const shortName = (n: string) => n.replace(/^(Dr.|Prof.)s+/, "");
+export const shortName = (n: string) => n.replace(/^(Dr\.|Prof\.)\s+/, "");
 
 export function countUp(root: Element) {
   root.querySelectorAll<HTMLElement>("[data-count]").forEach((el) => {

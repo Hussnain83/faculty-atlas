@@ -1,114 +1,177 @@
 import { Suspense } from "react";
-import { Icon, type IconName } from "@/components/ui/Icon";
-import { displayName, requireAccount } from "@/lib/auth";
+import { OverviewView } from "@/components/overview/OverviewView";
+import type { OverviewData, OvActivity, OvPerson } from "@/components/overview/types";
+import { type Account, requireAccount } from "@/lib/auth";
+import { signedUrls } from "@/lib/photos";
+import { completeness } from "@/lib/profile";
+import { hIndex, yearSeries } from "@/lib/stats";
 import { createClient } from "@/lib/supabase/server";
-
-const PHASES: { n: number; title: string; text: string }[] = [
-  { n: 0, title: "Foundations", text: "Design system, app shell, database connection, live link" },
-  { n: 1, title: "Database & privacy", text: "Tables, group-only visibility rules, sample data" },
-  { n: 2, title: "Sign-in & accounts", text: "3D sign-in, activation by email code, password reset" },
-  { n: 3, title: "Admin tools", text: "Directory, CSV import, groups and members" },
-  { n: 4, title: "Profile editing", text: "Photo, CV, bio, skills, career, publications" },
-  { n: 5, title: "Profile page", text: "3D ID card, charts, skill sphere, career journey" },
-  { n: 6, title: "Group page", text: "3D collaboration map, showcase, members" },
-  { n: 7, title: "Overview & search", text: "Orbiting groups, leaderboard, activity, search" },
-  { n: 8, title: "Quality pass", text: "Mobile, accessibility, speed, tests, security" },
-  { n: 9, title: "Launch", text: "Production data, email, domain, handover" },
-];
-const CURRENT_PHASE = 6;
+import "@/components/profile-view/profile.css";
+import "@/components/group-view/group.css";
+import "@/components/overview/overview.css";
 
 export default function OverviewPage() {
   return (
-    <section className="view">
-      <Suspense fallback={<Greeting name="" />}>
-        <GreetingForUser />
-      </Suspense>
-
-      <Suspense fallback={<Tiles values={null} admin />}>
-        <LiveTiles />
-      </Suspense>
-
-      <section className="card glass">
-        <div className="c-head">
-          <h2 className="c-title">
-            <span className="ic">
-              <Icon name="chart" />
-            </span>
-            Build plan
-          </h2>
-          <span className="chip" style={{ ["--c" as string]: "var(--mint)" }}>
-            Phase {CURRENT_PHASE} in progress
-          </span>
-        </div>
-        <ol className="roadmap">
-          {PHASES.map((p) => (
-            <li key={p.n} data-state={p.n === CURRENT_PHASE ? "now" : "next"}>
-              <span className="n">{p.n < CURRENT_PHASE ? <Icon name="check" width={14} height={14} /> : p.n}</span>
-              <span>
-                <b>{p.title}</b>
-                {p.text}
-              </span>
-            </li>
-          ))}
-        </ol>
-      </section>
-    </section>
+    <Suspense
+      fallback={
+        <section className="view" aria-busy="true">
+          <div className="phero-skeleton glass" />
+        </section>
+      }
+    >
+      <Overview />
+    </Suspense>
   );
 }
 
-async function GreetingForUser() {
-  const account = await requireAccount();
-  const name = displayName(account).replace(/^(Dr\.|Prof\.)\s+/, "").split(" ")[0];
-  return <Greeting name={name} admin={account.isAdmin} />;
+function ago(iso: string, now: number) {
+  const s = Math.max(0, Math.round((now - new Date(iso).getTime()) / 1000));
+  if (s < 60) return "Just now";
+  const m = Math.round(s / 60);
+  if (m < 60) return `${m} ${m === 1 ? "minute" : "minutes"} ago`;
+  const h = Math.round(m / 60);
+  if (h < 24) return `${h} ${h === 1 ? "hour" : "hours"} ago`;
+  const d = Math.round(h / 24);
+  if (d === 1) return "Yesterday";
+  if (d < 7) return `${d} days ago`;
+  return new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
 }
 
-function Greeting({ name, admin }: { name: string; admin?: boolean }) {
-  return (
-    <header className="page-head">
-      <div>
-        <p className="eyebrow">Overview</p>
-        <h1>{name ? `Good to see you, ${name}` : "Welcome"}</h1>
-        <p className="lede">
-          {admin
-            ? "You can see everyone in the directory. Register people and manage groups from People and Groups."
-            : "You see the people who share a research group with you. Open anyone to see their full profile."}
-        </p>
-      </div>
-    </header>
-  );
+/** Everything comes from the database as the signed-in person, so row-level security limits members to their groups. */
+async function Overview() {
+  const account = await requireAccount();
+  return <OverviewView data={await loadOverview(account, new Date().getTime())} />;
 }
 
-/** Real counts from the database. Row-level security decides what each person is allowed to count. */
-async function LiveTiles() {
-  const account = await requireAccount();
+async function loadOverview(account: Account, now: number): Promise<OverviewData> {
   const supabase = await createClient();
-  const count = async (table: "people" | "groups" | "publications" | "cvs") => {
-    const { count } = await supabase.from(table).select("*", { count: "exact", head: true });
-    return count ?? 0;
-  };
-  const [people, groups, papers, cvs] = await Promise.all([count("people"), count("groups"), count("publications"), count("cvs")]);
-  return <Tiles values={{ people, groups, papers, cvs }} admin={account.isAdmin} />;
-}
+  const thisYear = new Date(now).getFullYear();
 
-function Tiles({ values, admin }: { values: { people: number; groups: number; papers: number; cvs: number } | null; admin: boolean }) {
-  const tiles: { label: string; icon: IconName; c: string; value?: number; note: string }[] = [
-    { label: admin ? "People in directory" : "People you can see", icon: "users", c: "var(--lagoon)", value: values?.people, note: admin ? "Everyone registered" : "You plus your group colleagues" },
-    { label: "Research groups", icon: "layers", c: "var(--coral)", value: values?.groups, note: "Names are visible to everyone" },
-    { label: "Publications", icon: "book", c: "var(--iris)", value: values?.papers, note: admin ? "Across the faculty" : "By people you can see" },
-    { label: "CVs uploaded", icon: "file", c: "var(--saffron)", value: values?.cvs, note: "Shown on each profile" },
-  ];
-  return (
-    <section className="kpis" aria-label="Headline numbers">
-      {tiles.map((t) => (
-        <div key={t.label} className="kpi glass" style={{ ["--c" as string]: t.c }}>
-          <span className="k-label">
-            <Icon name={t.icon} />
-            {t.label}
-          </span>
-          <span className="k-num">{t.value ?? "–"}</span>
-          <span className="k-sub">{t.note}</span>
-        </div>
-      ))}
-    </section>
-  );
+  const [{ data: people }, { data: groups }, { data: authorship }, { data: cvs }, { data: skills }, { data: exps }, { data: achs }, { data: activity }] = await Promise.all([
+    supabase.from("people").select("id, full_name, title, bio, photo_path, status, group_members(group_id)").neq("status", "deactivated").order("full_name"),
+    supabase.from("groups").select("id, slug, name, short_code, color, description, group_members(person_id)").is("archived_at", null).order("name"),
+    supabase.from("publication_authors").select("person_id, publications(id, year, citations)"),
+    supabase.from("cvs").select("person_id"),
+    supabase.from("person_skills").select("person_id"),
+    supabase.from("experiences").select("person_id"),
+    supabase.from("achievements").select("person_id"),
+    supabase.from("activity").select("id, kind, summary, subject, created_at, people(id, full_name, photo_path)").order("created_at", { ascending: false }).limit(40),
+  ]);
+
+  const ppl = people ?? [];
+  const visible = new Set(ppl.map((p) => p.id));
+  const tally = (rows: { person_id: string }[] | null) => {
+    const m = new Map<string, number>();
+    (rows ?? []).forEach((r) => m.set(r.person_id, (m.get(r.person_id) ?? 0) + 1));
+    return m;
+  };
+  const nSkills = tally(skills), nExps = tally(exps), nAchs = tally(achs), nCvs = tally(cvs);
+
+  // Papers per person, and the unique papers by anyone visible.
+  const byPerson = new Map<string, number[]>();
+  const papers = new Map<string, { year: number; authors: Set<string> }>();
+  (authorship ?? []).forEach((a) => {
+    const pub = a.publications;
+    if (!pub || !visible.has(a.person_id)) return;
+    byPerson.set(a.person_id, [...(byPerson.get(a.person_id) ?? []), pub.citations]);
+    const entry = papers.get(pub.id) ?? { year: pub.year, authors: new Set<string>() };
+    entry.authors.add(a.person_id);
+    papers.set(pub.id, entry);
+  });
+  const paperList = [...papers.values()];
+
+  const photos = await signedUrls(supabase, "photos", [...ppl.map((p) => p.photo_path), ...(activity ?? []).map((a) => a.people?.photo_path)]);
+  const photo = (path: string | null | undefined) => (path ? (photos.get(path) ?? null) : null);
+
+  const persons: OvPerson[] = ppl.map((p) => {
+    const cites = byPerson.get(p.id) ?? [];
+    const c = completeness({
+      bio: p.bio,
+      photoPath: p.photo_path,
+      skills: nSkills.get(p.id) ?? 0,
+      publications: cites.length,
+      experiences: nExps.get(p.id) ?? 0,
+      achievements: nAchs.get(p.id) ?? 0,
+      hasCv: (nCvs.get(p.id) ?? 0) > 0,
+    });
+    return {
+      id: p.id,
+      name: p.full_name,
+      title: p.title,
+      photoUrl: photo(p.photo_path),
+      papers: cites.length,
+      cites: cites.reduce((s, v) => s + v, 0),
+      h: hIndex(cites),
+      completeness: c.score,
+      nextStep: c.missing[0]?.label ?? null,
+      nextPoints: c.missing[0]?.points ?? 0,
+      groups: p.group_members.length,
+    };
+  });
+  const byId = new Map(persons.map((p) => [p.id, p]));
+
+  const meRow = account.person ? ppl.find((p) => p.id === account.person!.id) : undefined;
+  const mePerson = meRow ? byId.get(meRow.id) : undefined;
+  const meMissing = meRow
+    ? completeness({
+        bio: meRow.bio,
+        photoPath: meRow.photo_path,
+        skills: nSkills.get(meRow.id) ?? 0,
+        publications: mePerson?.papers ?? 0,
+        experiences: nExps.get(meRow.id) ?? 0,
+        achievements: nAchs.get(meRow.id) ?? 0,
+        hasCv: (nCvs.get(meRow.id) ?? 0) > 0,
+      }).missing.map((m) => ({ label: m.label, points: m.points }))
+    : [];
+
+  const groupList = (groups ?? []).map((g) => {
+    const ids = new Set(g.group_members.map((m) => m.person_id));
+    const open = account.isAdmin || (account.person ? ids.has(account.person.id) : false);
+    return {
+      id: g.id,
+      slug: g.slug,
+      name: g.name,
+      shortCode: g.short_code,
+      color: g.color,
+      description: g.description,
+      open,
+      members: ids.size,
+      papers: open ? paperList.filter((x) => [...x.authors].some((a) => ids.has(a))).length : 0,
+      faces: open ? [...ids].map((id) => byId.get(id)).filter((p): p is OvPerson => Boolean(p)).slice(0, 3).map((p) => ({ name: p.name, photoUrl: p.photoUrl })) : [],
+    };
+  });
+
+  const acts: OvActivity[] = (activity ?? [])
+    .filter((a) => !a.people || visible.has(a.people.id))
+    .map((a) => ({
+      id: a.id,
+      kind: a.kind,
+      summary: a.summary,
+      subject: a.subject,
+      when: ago(a.created_at, now),
+      who: a.people ? { id: a.people.id, name: a.people.full_name, photoUrl: photo(a.people.photo_path) } : null,
+    }));
+
+  const greeting = account.isAdmin && !account.person ? "Research office" : (account.person?.fullName ?? "").replace(/^(Dr\.|Prof\.)\s+/, "").split(" ")[0] || "there";
+
+  return {
+    isAdmin: account.isAdmin,
+    greeting,
+    today: new Date(now).toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" }),
+    thisYear,
+    me: mePerson ? { ...mePerson, missing: meMissing } : null,
+    people: persons,
+    groups: groupList,
+    years: yearSeries(paperList, thisYear - 9, thisYear),
+    totals: {
+      people: persons.length,
+      papers: paperList.length,
+      papersThisYear: paperList.filter((x) => x.year === thisYear).length,
+      cvs: persons.filter((p) => (nCvs.get(p.id) ?? 0) > 0).length,
+      inGroups: persons.filter((p) => p.groups > 0).length,
+      memberships: groupList.reduce((s, g) => s + g.members, 0),
+      myGroups: groupList.filter((g) => g.open).length,
+    },
+    activity: acts,
+  };
 }
