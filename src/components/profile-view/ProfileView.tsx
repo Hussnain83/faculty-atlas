@@ -315,6 +315,7 @@ export function ProfileView({ data }: { data: ProfileData }) {
   const sphereRef = useRef<HTMLDivElement>(null);
   const [filter, setFilter] = useState<"all" | "journal" | "conference">("all");
   const [flipped, setFlipped] = useState<Set<string>>(new Set());
+  const [showAll, setShowAll] = useState(false);
 
   useHero(heroRef, cardRef, stageRef);
   useSphere(sphereRef, data.skills.length);
@@ -322,6 +323,7 @@ export function ProfileView({ data }: { data: ProfileData }) {
   useTilt(rootRef);
 
   const pubs = data.publications;
+  const PUB_PAGE = 8;
   const cites = pubs.reduce((s, p) => s + p.citations, 0);
   const h = hIndex(pubs.map((p) => p.citations));
   const maxCites = pubs.length ? Math.max(...pubs.map((p) => p.citations)) : 0;
@@ -352,12 +354,15 @@ export function ProfileView({ data }: { data: ProfileData }) {
   ];
   let k = 0;
   const nameLetters = data.name.split(" ").map((w, wi) => (
-    <span className="w" key={wi}>
-      {[...w].map((ch) => (
-        <span className="ch" key={k} style={{ ["--i" as string]: k++ }}>
-          {ch}
-        </span>
-      ))}
+    <span key={wi}>
+      {wi > 0 && " "}
+      <span className="w">
+        {[...w].map((ch) => (
+          <span className="ch" key={k} style={{ ["--i" as string]: k++ }}>
+            {ch}
+          </span>
+        ))}
+      </span>
     </span>
   ));
   const xs = [...data.experiences].sort((a, b) => a.start_year - b.start_year);
@@ -944,7 +949,7 @@ export function ProfileView({ data }: { data: ProfileData }) {
             <div className="toolbar" style={{ padding: 0 }}>
               <div className="tabs" role="tablist">
                 {(["all", "journal", "conference"] as const).map((t) => (
-                  <button key={t} type="button" role="tab" aria-selected={filter === t} className={filter === t ? "on" : ""} onClick={() => setFilter(t)}>
+                  <button key={t} type="button" role="tab" aria-selected={filter === t} className={filter === t ? "on" : ""} onClick={() => { setFilter(t); setShowAll(false); }}>
                     {t === "all" ? "All" : t === "journal" ? "Journals" : "Conferences"}
                     <em>{t === "all" ? pubs.length : pubs.filter((p) => p.kind === t).length}</em>
                   </button>
@@ -975,7 +980,7 @@ export function ProfileView({ data }: { data: ProfileData }) {
             <div className="empty">Nothing here yet.</div>
           ) : (
             <ul className="pubs">
-              {shown.map((p, i) => (
+              {(showAll ? shown : shown.slice(0, PUB_PAGE)).map((p, i) => (
                 <li key={p.id} className="pub" style={{ ["--i" as string]: i }}>
                   <div className="pub-year">{p.year}</div>
                   <div style={{ minWidth: 0 }}>
@@ -1011,6 +1016,11 @@ export function ProfileView({ data }: { data: ProfileData }) {
                 </li>
               ))}
             </ul>
+          )}
+          {shown.length > PUB_PAGE && (
+            <button type="button" className="btn btn-ghost pubs-more" aria-expanded={showAll} onClick={() => setShowAll((v) => !v)}>
+              {showAll ? "Show fewer" : `Show all ${shown.length} publications`}
+            </button>
           )}
         </div>
       </section>

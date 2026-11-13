@@ -178,7 +178,7 @@ async function Person({ params, searchParams }: { params: PageProps<"/people/[id
           </h2>
           <p className="text-ink-2">{person.bio || "No bio yet."}</p>
           <p className="muted" style={{ fontSize: 13 }}>
-            The full 3D profile with publications, career and CV arrives in Phase 5.
+            The full profile, with publications, career and CV, is on the View profile page.
           </p>
         </section>
       )}

@@ -48,7 +48,7 @@ export function Sidebar() {
       </Suspense>
       <div className="side-foot">
         <p className="side-note">
-          <b>Phase 4 build.</b> Edit your profile from My profile. The 3D profile page arrives in Phase 5.
+          <b>Phase 5 build.</b> Open anyone in People to see their 3D profile. Group pages get their 3D map in Phase 6.
         </p>
       </div>
     </aside>

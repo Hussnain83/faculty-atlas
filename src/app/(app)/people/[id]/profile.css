@@ -331,3 +331,11 @@
 .p-contact button svg, .p-contact a svg { width: 14px; height: 14px; color: var(--ink-3); }
 .phero-skeleton { height: 520px; border-radius: 32px; }
 .authors .av { box-shadow: none; }
+
+/* rules the extractor skipped */
+.id-strip .t{min-width:0}
+.id-strip .t b{display:block;font-family:var(--f-display);font-size:17px;font-weight:700;letter-spacing:-.02em;line-height:1.15;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.id-strip .t span{display:block;font-size:12.5px;color:var(--ink-3)}
+.st-top .k-label{font-size:13px;color:var(--ink-2);font-weight:550}
+
+.pubs-more{display:flex;width:max-content;margin:8px auto 0}

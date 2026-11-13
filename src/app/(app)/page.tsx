@@ -15,7 +15,7 @@ const PHASES: { n: number; title: string; text: string }[] = [
   { n: 8, title: "Quality pass", text: "Mobile, accessibility, speed, tests, security" },
   { n: 9, title: "Launch", text: "Production data, email, domain, handover" },
 ];
-const CURRENT_PHASE = 4;
+const CURRENT_PHASE = 5;
 
 export default function OverviewPage() {
   return (
@@ -71,7 +71,7 @@ function Greeting({ name, admin }: { name: string; admin?: boolean }) {
         <p className="lede">
           {admin
             ? "You can see everyone in the directory. Register people and manage groups from People and Groups."
-            : "You see the people who share a research group with you. Full profiles arrive in Phase 5."}
+            : "You see the people who share a research group with you. Open anyone to see their full profile."}
         </p>
       </div>
     </header>
@@ -95,7 +95,7 @@ function Tiles({ values, admin }: { values: { people: number; groups: number; pa
     { label: admin ? "People in directory" : "People you can see", icon: "users", c: "var(--lagoon)", value: values?.people, note: admin ? "Everyone registered" : "You plus your group colleagues" },
     { label: "Research groups", icon: "layers", c: "var(--coral)", value: values?.groups, note: "Names are visible to everyone" },
     { label: "Publications", icon: "book", c: "var(--iris)", value: values?.papers, note: admin ? "Across the faculty" : "By people you can see" },
-    { label: "CVs uploaded", icon: "file", c: "var(--saffron)", value: values?.cvs, note: "CV upload arrives in Phase 4" },
+    { label: "CVs uploaded", icon: "file", c: "var(--saffron)", value: values?.cvs, note: "Shown on each profile" },
   ];
   return (
     <section className="kpis" aria-label="Headline numbers">
