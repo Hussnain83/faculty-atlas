@@ -1,0 +1,58 @@
+/* Group page: extracted from design/prototype.html, plus real-data additions. Loaded with profile-view/profile.css. */
+/* members */
+.m-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
+.m-card{position:relative;border-radius:var(--r-lg);padding:18px;display:flex;flex-direction:column;gap:12px;transition:transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .25s}
+.m-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-lift)}
+.m-card .who{display:flex;gap:12px;align-items:center}
+.m-card h4{font-family:var(--f-body);font-size:15px;font-weight:650;line-height:1.25}
+.m-card .t{font-size:12.5px;color:var(--ink-3)}
+.m-card .nums{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:10px 0;border-block:1px solid var(--line)}
+.m-card .nums div{text-align:center}
+.m-card .nums b{display:block;font-family:var(--f-display);font-size:19px;font-weight:700;line-height:1.1;font-variant-numeric:tabular-nums}
+.m-card .nums span{font-size:11px;color:var(--ink-3)}
+.m-card .mini{display:flex;flex-wrap:wrap;gap:5px}
+.m-card .mini .tag{height:24px;font-size:12px;padding:0 9px}
+.m-card .lead{position:absolute;top:14px;right:14px}
+.m-card:hover .m-remove,.m-remove:focus-visible{opacity:1}
+/* ===== group hero + network ===== */
+.ghero::after{background:linear-gradient(260deg,transparent 45%,rgba(255,255,255,.5) 68%,rgba(255,255,255,.72))}
+.gh-grid{grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);padding:34px 24px 30px 44px}
+.gh-badge{display:flex;align-items:center;gap:12px}
+.gh-badge .g-badge{width:54px;height:54px;border-radius:16px;font-size:17px}
+.gh-name{font-size:clamp(34px,4.6vw,58px)}
+.gh-lead{display:inline-flex;align-items:center;gap:10px;padding:6px 16px 6px 6px;border-radius:999px;background:rgba(255,255,255,.78);border:1px solid var(--glass-edge);width:max-content;max-width:100%;box-shadow:0 10px 20px -16px rgba(13,27,42,.5)}
+.gh-lead small{display:block;font-size:11.5px;color:var(--ink-3)}
+.gh-lead b{display:block;font-size:14px;font-weight:650;line-height:1.2}
+.gh-lead:hover{background:var(--white)}
+.net{position:relative;height:520px;min-width:0}
+.net canvas{width:100%;height:100%;display:block;cursor:grab;touch-action:pan-y}
+.net-tip{position:absolute;left:0;top:0;z-index:3;transform:translate(-50%,-100%);display:flex;flex-direction:column;gap:2px;padding:9px 13px;border-radius:12px;background:var(--white);box-shadow:0 16px 30px -14px rgba(13,27,42,.5);font-size:12.5px;color:var(--ink-2);white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .15s}
+.net-tip b{font-size:14px;color:var(--ink)}
+.net-tip.on{opacity:1}
+.net-legend{position:absolute;left:0;right:0;bottom:4px;display:flex;justify-content:center;flex-wrap:wrap;gap:6px 16px;font-size:12px;color:var(--ink-2);pointer-events:none}
+.net-legend span{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:99px;background:rgba(255,255,255,.7)}
+.m-grid .m-card{animation:cardRise .8s cubic-bezier(.2,.8,.2,1) backwards;animation-delay:calc(min(var(--i,0),12)*70ms + .1s)}
+.motion .rv:not(.in) :is(.rb-seg,.rb-dot,.xp-card,.pcard,.m-card){animation:none}
+.instant :is(.rb-seg,.rb-dot,.xp-card,.pcard,.m-card){animation:none!important}
+.g-lockrow{display:flex;gap:8px;align-items:center;padding:10px 12px;border-radius:12px;background:rgba(13,27,42,.05);font-size:13px;color:var(--ink-2)}
+.g-lockrow svg{width:15px;height:15px;flex:none}
+@media (max-width:1100px){.net{height:460px}
+.ghero::after{background:linear-gradient(0deg,transparent 45%,rgba(255,255,255,.55) 70%)}}
+@media (max-width:640px){.net{height:380px}}
+.tag{display:inline-flex;align-items:center;height:28px;padding:0 12px;border-radius:9px;background:var(--white);border:1px solid var(--line);font-size:13px;font-weight:500;color:var(--ink-2)}
+.m-remove{position:absolute;top:12px;right:12px;z-index:2;opacity:0;transition:opacity .2s}
+@media (hover:none){.m-remove{opacity:1}}
+.lk{display:inline-block;width:18px;height:3px;border-radius:2px;background:var(--c1)}
+.lk.hub{height:0;background:none;border-top:2px dashed var(--c1)}
+.m-card .comp{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--ink-3)}
+.m-card .comp .meter{flex:1}
+.m-card .m-status{position:absolute;top:14px;right:14px}
+.m-card .lead + .m-status{top:44px}
+.m-card .stretch{position:absolute;inset:0;z-index:1;border-radius:inherit}
+.m-card .row-actions{position:relative;z-index:2;display:flex;gap:6px;flex-wrap:wrap}
+.net-empty{display:grid;place-items:center;height:100%;color:var(--ink-3);font-size:14px;text-align:center;padding:24px}
+.g-admin{margin-top:6px}
+@media (max-width:1100px){.gh-grid{grid-template-columns:minmax(0,1fr);padding:24px 24px 28px}}
+@media (max-width:640px){.gh-grid{padding:18px 18px 24px}}
+.meter{height:7px;border-radius:99px;background:rgba(13,27,42,.07);overflow:hidden}
+.meter i{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,var(--c,var(--lagoon)),color-mix(in srgb,var(--c,var(--lagoon)) 55%,white))}

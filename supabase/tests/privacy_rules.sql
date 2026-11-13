@@ -110,12 +110,23 @@ begin
   select count(*) into n from public.user_roles;
   ok := n = 0; out := out || format(E'\n%s  Amina cannot see who the admins are', case when ok then 'PASS' else 'FAIL' end); if not ok then fails := fails + 1; end if;
 
+  select count(*) into n from public.group_publications((select id from public.groups where slug = 'ai-lab'));
+  ok := n > 0; out := out || format(E'
+%s  Amina sees AI Lab papers on the group page (got %s)', case when ok then 'PASS' else 'FAIL' end, n); if not ok then fails := fails + 1; end if;
+  select count(*) into n from public.group_publications((select id from public.groups where slug = 'learning-sciences'));
+  ok := n = 0; out := out || format(E'
+%s  Amina gets no papers for a group she is not in (got %s)', case when ok then 'PASS' else 'FAIL' end, n); if not ok then fails := fails + 1; end if;
+
   -- ---------- Kenji: registered, in no group ----------
   perform set_config('request.jwt.claims', json_build_object('sub', kenji_uid, 'role', 'authenticated')::text, true);
   select count(*) into n from public.people;
   ok := n = 1; out := out || format(E'\n%s  Kenji (no groups) sees only himself (got %s)', case when ok then 'PASS' else 'FAIL' end, n); if not ok then fails := fails + 1; end if;
   select count(*) into n from public.group_members;
   ok := n = 0; out := out || format(E'\n%s  Kenji sees no member lists (got %s)', case when ok then 'PASS' else 'FAIL' end, n); if not ok then fails := fails + 1; end if;
+
+  select count(*) into n from public.group_publications((select id from public.groups where slug = 'ai-lab'));
+  ok := n = 0; out := out || format(E'
+%s  Kenji gets no group papers (got %s)', case when ok then 'PASS' else 'FAIL' end, n); if not ok then fails := fails + 1; end if;
 
   perform set_config('role', 'postgres', true);
   raise exception E'PRIVACY TESTS: % failed\n%\n(rolled back, nothing was saved)', fails, out;

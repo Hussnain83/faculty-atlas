@@ -238,6 +238,11 @@ isOneToOne: false
             "activate_my_account":
 { Args: Record<PropertyKey, never>; Returns: boolean
                            },
+"group_publications":
+{ Args: { "gid": string }; Returns: {
+              "authors": Json,"citations": number,"doi": string,"external_authors": (string)[],"id": string,"kind": Database["public"]['Enums']["publication_kind"],"member_ids": (string)[],"title": string,"venue": string,"year": number
+            }[]
+                           },
 "log_activity":
 { Args: { "p_actor": string,"p_kind": Database["public"]['Enums']["activity_kind"],"p_subject": string,"p_summary": string }; Returns: undefined
                            },

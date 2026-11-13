@@ -15,7 +15,7 @@ const PHASES: { n: number; title: string; text: string }[] = [
   { n: 8, title: "Quality pass", text: "Mobile, accessibility, speed, tests, security" },
   { n: 9, title: "Launch", text: "Production data, email, domain, handover" },
 ];
-const CURRENT_PHASE = 5;
+const CURRENT_PHASE = 6;
 
 export default function OverviewPage() {
   return (

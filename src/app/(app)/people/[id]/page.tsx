@@ -8,7 +8,7 @@ import { requireAccount } from "@/lib/auth";
 import { signedUrls } from "@/lib/photos";
 import { completeness } from "@/lib/profile";
 import { createClient } from "@/lib/supabase/server";
-import "./profile.css";
+import "@/components/profile-view/profile.css";
 
 export const metadata: Metadata = { title: "Profile" };
 
