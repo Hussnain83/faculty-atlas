@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { safeNext } from "@/lib/redirects";
 
 /* ---------------------------------------------------------------- helpers */
 
@@ -15,8 +16,6 @@ const clean = (v: FormDataEntryValue | null) => String(v ?? "").trim();
 
 const maskEmail = (e: string) => e.replace(/^(.)(.*?)(@.*)$/, (_m, a: string, b: string, c: string) => a + "•".repeat(Math.max(2, b.length)) + c);
 
-/** Only allow redirects to paths inside this app. */
-const safeNext = (next: string) => (next.startsWith("/") && !next.startsWith("//") ? next : "/");
 
 /** Directory lookup with the secret key (signed-out visitors can't read the table themselves). */
 async function lookupPerson(email: string) {

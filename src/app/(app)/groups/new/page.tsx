@@ -6,6 +6,7 @@ import { createGroup } from "@/app/(app)/groups/actions";
 import { GroupForm } from "@/components/admin/GroupForm";
 import { Icon } from "@/components/ui/Icon";
 import { requireAccount } from "@/lib/auth";
+import { Skeleton } from "@/components/ui/Skeleton";
 
 export const metadata: Metadata = { title: "New group" };
 
@@ -24,7 +25,7 @@ export default function NewGroupPage() {
         </div>
       </header>
       <section className="card glass">
-        <Suspense fallback={<p className="muted">Loading…</p>}>
+        <Suspense fallback={<Skeleton label="Loading the form" variant="form" rows={4} />}>
           <AdminOnly />
         </Suspense>
       </section>

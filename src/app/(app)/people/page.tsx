@@ -7,13 +7,14 @@ import { requireAccount } from "@/lib/auth";
 import { signedUrls } from "@/lib/photos";
 import { createClient } from "@/lib/supabase/server";
 import { GROUP_COLOR_VAR, safeSearch, STATUS_LABEL } from "@/lib/ui";
+import { Skeleton } from "@/components/ui/Skeleton";
 
 export const metadata: Metadata = { title: "People" };
 
 export default function PeoplePage(props: PageProps<"/people">) {
   return (
     <section className="view">
-      <Suspense fallback={<p className="muted">Loading the directory…</p>}>
+      <Suspense fallback={<Skeleton label="Loading the directory" rows={7} />}>
         <People searchParams={props.searchParams} />
       </Suspense>
     </section>

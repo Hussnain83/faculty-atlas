@@ -23,6 +23,17 @@ async function target(personId: string | null) {
   return { supabase: await createClient(), personId: id, account };
 }
 
+/** The real file type from its first bytes, so a renamed file can't pose as a photo or PDF. */
+async function sniff(file: File): Promise<string | null> {
+  const b = new Uint8Array(await file.slice(0, 12).arrayBuffer());
+  const ascii = (from: number, to: number) => String.fromCharCode(...b.slice(from, to));
+  if (b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff) return "image/jpeg";
+  if (b[0] === 0x89 && ascii(1, 4) === "PNG") return "image/png";
+  if (ascii(0, 4) === "RIFF" && ascii(8, 12) === "WEBP") return "image/webp";
+  if (ascii(0, 5) === "%PDF-") return "application/pdf";
+  return null;
+}
+
 async function run(fn: () => Promise<Result>): Promise<Result> {
   try {
     const r = await fn();
@@ -60,6 +71,7 @@ export async function uploadPhoto(personId: string | null, form: FormData): Prom
     if (!(file instanceof File) || file.size === 0) return fail("Choose a photo first.");
     if (!/^image\/(jpeg|png|webp)$/.test(file.type)) return fail("Use a JPG, PNG or WebP image.");
     if (file.size > 5 * 1024 * 1024) return fail("The photo must be under 5 MB.");
+    if ((await sniff(file)) !== file.type) return fail("This file is not a real JPG, PNG or WebP image.");
     const { data: person } = await supabase.from("people").select("photo_path").eq("id", id).single();
     const path = `${id}/avatar-${Date.now()}.${file.type === "image/png" ? "png" : file.type === "image/webp" ? "webp" : "jpg"}`;
     const { error } = await supabase.storage.from("photos").upload(path, file, { contentType: file.type });
@@ -90,6 +102,7 @@ export async function uploadCv(personId: string | null, form: FormData): Promise
     if (!(file instanceof File) || file.size === 0) return fail("Choose a PDF first.");
     if (file.type !== "application/pdf" && !file.name.toLowerCase().endsWith(".pdf")) return fail("The CV must be a PDF.");
     if (file.size > 10 * 1024 * 1024) return fail("The CV must be under 10 MB.");
+    if ((await sniff(file)) !== "application/pdf") return fail("This file is not a real PDF.");
     const { data: old } = await supabase.from("cvs").select("file_path").eq("person_id", id).maybeSingle();
     const path = `${id}/cv-${Date.now()}.pdf`;
     const { error } = await supabase.storage.from("cvs").upload(path, file, { contentType: "application/pdf" });

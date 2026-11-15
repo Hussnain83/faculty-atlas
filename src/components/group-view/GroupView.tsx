@@ -1,8 +1,8 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { type ReactNode, useEffect, useId, useMemo, useRef, useState } from "react";
-import { GroupNetwork } from "@/components/group-view/GroupNetwork";
 import type { GroupData, GroupMember } from "@/components/group-view/types";
 import { ComboChart, Gauge, Spark } from "@/components/profile-view/charts";
 import { HeroField } from "@/components/profile-view/HeroField";
@@ -11,6 +11,12 @@ import { Avatar } from "@/components/ui/Avatar";
 import { Icon } from "@/components/ui/Icon";
 import { hIndex, yearSeries } from "@/lib/stats";
 import { GROUP_COLOR_VAR, STATUS_LABEL } from "@/lib/ui";
+
+/** The 3D map is drawn on a canvas in the browser only, so its code loads separately after the page. */
+const GroupNetwork = dynamic(() => import("@/components/group-view/GroupNetwork").then((m) => m.GroupNetwork), {
+  ssr: false,
+  loading: () => <div className="net" aria-hidden="true" />,
+});
 
 type Sort = "pubs" | "name" | "complete";
 const lastName = (n: string) => n.trim().split(/\s+/).slice(-1)[0] ?? n;

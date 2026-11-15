@@ -8,13 +8,14 @@ import { requireAccount } from "@/lib/auth";
 import { runSearch } from "@/lib/search";
 import { createClient } from "@/lib/supabase/server";
 import { GROUP_COLOR_VAR } from "@/lib/ui";
+import { Skeleton } from "@/components/ui/Skeleton";
 
 export const metadata: Metadata = { title: "Search" };
 
 export default function SearchPage(props: PageProps<"/search">) {
   return (
     <section className="view">
-      <Suspense fallback={<p className="muted">Searching…</p>}>
+      <Suspense fallback={<Skeleton label="Searching" rows={5} />}>
         <Results searchParams={props.searchParams} />
       </Suspense>
     </section>

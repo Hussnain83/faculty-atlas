@@ -9,6 +9,7 @@ import { fmt, shortName, useReveal, useTilt } from "@/components/profile-view/sh
 import { Avatar } from "@/components/ui/Avatar";
 import { Icon, type IconName } from "@/components/ui/Icon";
 import { GROUP_COLOR_VAR } from "@/lib/ui";
+import { animateWhileVisible } from "@/lib/visibility";
 
 const ACT_KIND: Record<OverviewData["activity"][number]["kind"], { icon: IconName; c: string; label: string }> = {
   publication: { icon: "book", c: "var(--iris)", label: "Papers" },
@@ -26,7 +27,7 @@ function useGalaxy(ref: React.RefObject<HTMLDivElement | null>, heroRef: React.R
     if (!gx) return;
     const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const pls = [...gx.querySelectorAll<HTMLElement>(".planet")];
-    let a0 = -0.4, paused = false, raf = 0;
+    let a0 = -0.4, paused = false;
     const pause = () => (paused = true), resume = () => (paused = false);
     const onMove = (e: PointerEvent) => {
       if (!hero) return;
@@ -43,7 +44,6 @@ function useGalaxy(ref: React.RefObject<HTMLDivElement | null>, heroRef: React.R
         p.style.zIndex = y > 0 ? "10" : "2";
         p.style.opacity = (0.6 + 0.4 * z).toFixed(2);
       });
-      if (!still) raf = requestAnimationFrame(frame);
     };
     gx.addEventListener("pointerenter", pause);
     gx.addEventListener("pointerleave", resume);
@@ -51,8 +51,9 @@ function useGalaxy(ref: React.RefObject<HTMLDivElement | null>, heroRef: React.R
     gx.addEventListener("focusout", resume);
     hero?.addEventListener("pointermove", onMove, { passive: true });
     frame();
+    const stop = still ? () => undefined : animateWhileVisible(gx, frame);
     return () => {
-      cancelAnimationFrame(raf);
+      stop();
       gx.removeEventListener("pointerenter", pause);
       gx.removeEventListener("pointerleave", resume);
       gx.removeEventListener("focusin", pause);

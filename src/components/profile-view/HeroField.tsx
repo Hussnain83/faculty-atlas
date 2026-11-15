@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { animateWhileVisible } from "@/lib/visibility";
 
 /** White research tokens drifting across the profile hero (the person's own years, venues and numbers). */
 export function HeroField({ tokens }: { tokens: string[] }) {
@@ -11,7 +12,7 @@ export function HeroField({ tokens }: { tokens: string[] }) {
     if (!canvas || !ctx || tokens.length === 0) return;
     const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const font = getComputedStyle(document.documentElement).getPropertyValue("--f-mono") || "monospace";
-    let w = 0, h = 0, raf = 0;
+    let w = 0, h = 0;
     type Item = { t: string; x: number; y: number; z: number; s: number; a: number; ph: number; v: number };
     let items: Item[] = [];
     const spawn = (anywhere: boolean): Item => {
@@ -42,17 +43,16 @@ export function HeroField({ tokens }: { tokens: string[] }) {
       }
       ctx.globalAlpha = 1;
     };
-    const loop = (t: number) => {
-      draw(t);
-      raf = requestAnimationFrame(loop);
-    };
     size();
+    const stop = still ? () => undefined : animateWhileVisible(canvas, draw);
     if (still) draw(0);
-    else raf = requestAnimationFrame(loop);
-    const onResize = () => size();
+    const onResize = () => {
+      size();
+      if (still) draw(0);
+    };
     window.addEventListener("resize", onResize);
     return () => {
-      cancelAnimationFrame(raf);
+      stop();
       window.removeEventListener("resize", onResize);
     };
   }, [tokens]);

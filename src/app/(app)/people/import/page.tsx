@@ -6,6 +6,7 @@ import { CsvImport } from "@/components/admin/CsvImport";
 import { Icon } from "@/components/ui/Icon";
 import { requireAccount } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { Skeleton } from "@/components/ui/Skeleton";
 
 export const metadata: Metadata = { title: "Import people" };
 
@@ -23,7 +24,7 @@ export default function ImportPage() {
           <p className="lede">You will see every row checked before anything is saved. People already in the directory are skipped.</p>
         </div>
       </header>
-      <Suspense fallback={<p className="muted">Loading…</p>}>
+      <Suspense fallback={<Skeleton label="Loading the importer" variant="form" rows={3} />}>
         <Importer />
       </Suspense>
     </section>

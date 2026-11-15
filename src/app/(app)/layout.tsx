@@ -1,14 +1,18 @@
 import { Suspense, type ReactNode } from "react";
 import { Sidebar } from "@/components/shell/Sidebar";
 import { Topbar } from "@/components/shell/Topbar";
+import { Skeleton } from "@/components/ui/Skeleton";
 import { requireAccount } from "@/lib/auth";
 
 /** Signed-in app shell: frosted sidebar + top bar. Sign-in pages live in (auth) without this shell. */
 export default function AppLayout({ children }: LayoutProps<"/">) {
   return (
     <div className="app">
+      <a className="skip-link" href="#content">
+        Skip to content
+      </a>
       <Sidebar />
-      <main className="main">
+      <main className="main" id="content" tabIndex={-1}>
         <div className="wrap">
           <Topbar />
           <Suspense fallback={<ViewLoading />}>
@@ -29,9 +33,7 @@ async function Gate({ children }: { children: ReactNode }) {
 function ViewLoading() {
   return (
     <section className="view" aria-busy="true">
-      <div className="card glass">
-        <p className="muted">Loading…</p>
-      </div>
+      <Skeleton label="Loading" rows={4} />
     </section>
   );
 }

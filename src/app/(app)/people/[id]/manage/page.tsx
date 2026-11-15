@@ -12,6 +12,7 @@ import { signedUrls } from "@/lib/photos";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { GROUP_COLOR_VAR, STATUS_LABEL } from "@/lib/ui";
+import { Skeleton } from "@/components/ui/Skeleton";
 
 export const metadata: Metadata = { title: "Manage person" };
 
@@ -22,7 +23,7 @@ export default function ManagePersonPage(props: PageProps<"/people/[id]/manage">
         <Icon name="back" />
         People
       </Link>
-      <Suspense fallback={<p className="muted">Loading…</p>}>
+      <Suspense fallback={<Skeleton label="Loading this person" variant="form" rows={6} />}>
         <Person params={props.params} searchParams={props.searchParams} />
       </Suspense>
     </section>

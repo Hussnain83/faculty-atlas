@@ -7,6 +7,7 @@ import { PersonForm } from "@/components/admin/PersonForm";
 import { Icon } from "@/components/ui/Icon";
 import { requireAccount } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { Skeleton } from "@/components/ui/Skeleton";
 
 export const metadata: Metadata = { title: "Register a person" };
 
@@ -28,7 +29,7 @@ export default function NewPersonPage() {
         </div>
       </header>
       <section className="card glass">
-        <Suspense fallback={<p className="muted">Loading…</p>}>
+        <Suspense fallback={<Skeleton label="Loading the form" variant="form" rows={6} />}>
           <Form />
         </Suspense>
       </section>

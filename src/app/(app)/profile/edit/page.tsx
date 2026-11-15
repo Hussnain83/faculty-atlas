@@ -8,13 +8,14 @@ import { requireAccount } from "@/lib/auth";
 import { signedUrls } from "@/lib/photos";
 import { completeness } from "@/lib/profile";
 import { createClient } from "@/lib/supabase/server";
+import { Skeleton } from "@/components/ui/Skeleton";
 
 export const metadata: Metadata = { title: "Edit profile" };
 
 export default function EditProfilePage(props: PageProps<"/profile/edit">) {
   return (
     <section className="view">
-      <Suspense fallback={<p className="muted">Loading your profile…</p>}>
+      <Suspense fallback={<Skeleton label="Loading your profile" variant="form" rows={6} />}>
         <Editor searchParams={props.searchParams} />
       </Suspense>
     </section>

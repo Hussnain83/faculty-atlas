@@ -48,7 +48,7 @@ export function Sidebar() {
       </Suspense>
       <div className="side-foot">
         <p className="side-note">
-          <b>Phase 7 build.</b> Press / to search people, skills, groups and papers. Phase 8 is the quality pass.
+          <b>Phase 8 build.</b> Press / to search. Next: launch with real data and email.
         </p>
       </div>
     </aside>

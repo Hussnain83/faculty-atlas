@@ -14,5 +14,5 @@ export const STATUS_LABEL: Record<string, { label: string; color: string }> = {
   deactivated: { label: "Deactivated", color: "var(--coral)" },
 };
 
-/** Strip characters that would break a PostgREST or() filter. */
-export const safeSearch = (q: string) => q.replace(/[,()%*\\]/g, " ").trim().slice(0, 80);
+/** Strip characters that would break a PostgREST or() filter (separators, wildcards, quotes). */
+export const safeSearch = (q: string) => q.replace(/[,()%*\\"'`:]/g, " ").trim().slice(0, 80);

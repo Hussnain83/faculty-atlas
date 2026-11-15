@@ -5,13 +5,14 @@ import { Icon } from "@/components/ui/Icon";
 import { requireAccount } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { GROUP_COLOR_VAR } from "@/lib/ui";
+import { Skeleton } from "@/components/ui/Skeleton";
 
 export const metadata: Metadata = { title: "Groups" };
 
 export default function GroupsPage(props: PageProps<"/groups">) {
   return (
     <section className="view">
-      <Suspense fallback={<p className="muted">Loading groups…</p>}>
+      <Suspense fallback={<Skeleton label="Loading groups" variant="grid" rows={4} />}>
         <Groups searchParams={props.searchParams} />
       </Suspense>
     </section>

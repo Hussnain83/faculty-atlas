@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
 import { colorsFor, initialsOf } from "@/components/ui/Avatar";
+import { animateWhileVisible } from "@/lib/visibility";
 import type { GroupMember } from "@/components/group-view/types";
 
 type Edge = { a: string; b: string; w: number };
@@ -46,7 +47,7 @@ export function GroupNetwork({ members, edges, color, shortCode, papersOf }: { m
       return a && b ? [{ a, b, w: e.w, off: (i * 0.37) % 1 }] : [];
     });
 
-    let W = 0, H = 0, ry = 0.5, rx = -0.2, raf = 0;
+    let W = 0, H = 0, ry = 0.5, rx = -0.2;
     let drag: { x: number; y: number; moved: number; ry: number; rx: number } | null = null;
     let hover: Node | null = null;
     const t0 = still ? -1e7 : performance.now();
@@ -274,16 +275,14 @@ export function GroupNetwork({ members, edges, color, shortCode, papersOf }: { m
     canvas.addEventListener("pointerleave", onLeave);
     window.addEventListener("resize", onResize);
     if (still) draw(performance.now());
-    else {
-      const loop = (t: number) => {
-        if (!drag && !hover) ry += 0.0022;
-        draw(t);
-        raf = requestAnimationFrame(loop);
-      };
-      raf = requestAnimationFrame(loop);
-    }
+    const stop = still
+      ? () => undefined
+      : animateWhileVisible(canvas, (t) => {
+          if (!drag && !hover) ry += 0.0022;
+          draw(t);
+        });
     return () => {
-      cancelAnimationFrame(raf);
+      stop();
       canvas.removeEventListener("pointerdown", onDown);
       canvas.removeEventListener("pointermove", onMove);
       canvas.removeEventListener("pointerup", onEnd);

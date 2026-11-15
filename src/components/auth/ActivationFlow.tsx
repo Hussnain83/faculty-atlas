@@ -1,5 +1,7 @@
 "use client";
 
+/* eslint-disable @next/next/no-img-element -- previews of a photo chosen on this device (blob: URLs), which next/image cannot optimise */
+
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, useTransition, type FormEvent } from "react";

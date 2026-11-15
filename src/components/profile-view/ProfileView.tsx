@@ -13,6 +13,7 @@ import { Icon, type IconName } from "@/components/ui/Icon";
 import { formatBytes } from "@/lib/image";
 import { hIndex, topCounts, yearSeries } from "@/lib/stats";
 import { GROUP_COLOR_VAR } from "@/lib/ui";
+import { animateWhileVisible } from "@/lib/visibility";
 
 const CAT_COLOR = { research: "var(--lagoon)", tools: "var(--iris)", teaching: "var(--coral)" } as const;
 const CAT_LABEL = { research: "Research", tools: "Tools", teaching: "Teaching" } as const;
@@ -31,7 +32,7 @@ function useHero(heroRef: React.RefObject<HTMLElement | null>, cardRef: React.Re
     if (!hero || !card || !stage) return;
     const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const chips = [...stage.querySelectorAll<HTMLElement>(".oc")];
-    let tx = 0, ty = 0, cx = 0, cy = 0, a0 = 0, raf = 0;
+    let tx = 0, ty = 0, cx = 0, cy = 0, a0 = 0;
     const onMove = (e: PointerEvent) => {
       const r = hero.getBoundingClientRect();
       tx = (e.clientX - r.left) / r.width - 0.5;
@@ -60,13 +61,13 @@ function useHero(heroRef: React.RefObject<HTMLElement | null>, cardRef: React.Re
         c.style.opacity = (0.38 + 0.62 * d).toFixed(2);
         c.style.zIndex = z > 0 ? "10" : "1";
       });
-      if (!still) raf = requestAnimationFrame(frame);
     };
     hero.addEventListener("pointermove", onMove, { passive: true });
     hero.addEventListener("pointerleave", onLeave);
-    raf = requestAnimationFrame(frame);
+    const once = still ? requestAnimationFrame(frame) : 0;
+    const stop = still ? () => cancelAnimationFrame(once) : animateWhileVisible(hero, frame);
     return () => {
-      cancelAnimationFrame(raf);
+      stop();
       hero.removeEventListener("pointermove", onMove);
       hero.removeEventListener("pointerleave", onLeave);
     };
@@ -86,7 +87,7 @@ function useSphere(ref: React.RefObject<HTMLDivElement | null>, count: number) {
       const y = 1 - ((i + 0.5) / n) * 2, r = Math.sqrt(1 - y * y), th = i * 2.39996;
       return [Math.cos(th) * r, y, Math.sin(th) * r];
     });
-    let vx = 0.002, vy = 0.004, tvx = vx, tvy = vy, rx = 0.35, ry = 0, raf = 0;
+    let vx = 0.002, vy = 0.004, tvx = vx, tvy = vy, rx = 0.35, ry = 0;
     const onMove = (e: PointerEvent) => {
       const r = el.getBoundingClientRect();
       tvy = ((e.clientX - r.left) / r.width - 0.5) * 0.035;
@@ -111,13 +112,13 @@ function useSphere(ref: React.RefObject<HTMLDivElement | null>, count: number) {
         t.style.opacity = (0.28 + 0.72 * d).toFixed(2);
         t.style.zIndex = String(Math.round(d * 100));
       });
-      if (!still) raf = requestAnimationFrame(frame);
     };
     el.addEventListener("pointermove", onMove, { passive: true });
     el.addEventListener("pointerleave", onLeave);
     frame();
+    const stop = still ? () => undefined : animateWhileVisible(el, frame);
     return () => {
-      cancelAnimationFrame(raf);
+      stop();
       el.removeEventListener("pointermove", onMove);
       el.removeEventListener("pointerleave", onLeave);
     };
