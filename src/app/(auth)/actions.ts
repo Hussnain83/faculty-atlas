@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { safeNext } from "@/lib/redirects";
+import { ORG, exampleEmail } from "@/lib/org";
 
 /* ---------------------------------------------------------------- helpers */
 
@@ -23,6 +24,15 @@ async function lookupPerson(email: string) {
   const { data } = await admin.from("people").select("id, status").eq("email", email).maybeSingle();
   return data;
 }
+
+/** Research office accounts may have no directory entry; they can still reset their password. */
+async function isAdminEmail(email: string) {
+  const { data } = await createAdminClient().rpc("admin_email_exists", { p_email: email });
+  return data === true;
+}
+
+/** Digits in emailed codes. Must match Supabase → Authentication → Email → "Email OTP length". */
+const CODE_LENGTH = Math.min(10, Math.max(6, Number(process.env.FA_OTP_LENGTH) || 6));
 
 /**
  * Sends a one-time code to the email. In demo mode no email is sent: the sample addresses are
@@ -67,7 +77,7 @@ export async function signIn(_prev: SignInState, form: FormData): Promise<SignIn
   const password = String(form.get("password") ?? "");
   const next = safeNext(clean(form.get("next")) || "/");
 
-  if (!isEmail(email)) return fail("Enter your work email, like name@northfield.edu.", "email");
+  if (!isEmail(email)) return fail(`Enter your work email, like ${exampleEmail()}.`, "email");
   if (password.length < 8) return fail("Passwords have at least 8 characters.", "password");
 
   const supabase = await createClient();
@@ -107,15 +117,15 @@ export async function signOut() {
 
 /* ---------------------------------------------------------------- activation */
 
-export type CodeSent = { ok: true; email: string; masked: string; demoCode?: string };
+export type CodeSent = { ok: true; email: string; masked: string; codeLength: number; demoCode?: string };
 
 export async function startActivation(emailRaw: string): Promise<CodeSent | Fail> {
   const email = emailRaw.trim().toLowerCase();
-  if (!isEmail(email)) return fail("Enter your work email, like name@northfield.edu.", "email");
+  if (!isEmail(email)) return fail(`Enter your work email, like ${exampleEmail()}.`, "email");
   const person = await lookupPerson(email);
   if (!person) {
     return fail(
-      "Only people registered by the research office can create an account. Ask them at research.office@northfield.edu.",
+      `Only people registered by the research office can create an account. Ask them at ${ORG.supportEmail}.`,
       "email",
       { notFound: true },
     );
@@ -125,7 +135,7 @@ export async function startActivation(emailRaw: string): Promise<CodeSent | Fail
 
   const sent = await sendCode(email);
   if ("ok" in sent) return sent;
-  return { ok: true, email, masked: maskEmail(email), demoCode: sent.demoCode };
+  return { ok: true, email, masked: maskEmail(email), codeLength: sent.demoCode?.length ?? CODE_LENGTH, demoCode: sent.demoCode };
 }
 
 export type ProfileDraft = {
@@ -158,7 +168,7 @@ async function loadDraft(): Promise<ProfileDraft | Fail> {
 
 export async function verifyActivation(emailRaw: string, code: string): Promise<ProfileDraft | Fail> {
   const email = emailRaw.trim().toLowerCase();
-  if (!/^\d{6,8}$/.test(code)) return fail("Enter all the digits of the code.", "code");
+  if (!/^\d{6,10}$/.test(code)) return fail("Enter all the digits of the code.", "code");
   if (!(await verifyCode(email, code))) return fail("That code is not right or has expired. Check it and try again.", "code");
   return loadDraft();
 }
@@ -242,18 +252,18 @@ export async function finishActivation(form: FormData): Promise<Activated | Fail
 
 export async function startReset(emailRaw: string): Promise<CodeSent | Fail> {
   const email = emailRaw.trim().toLowerCase();
-  if (!isEmail(email)) return fail("Enter your work email, like name@northfield.edu.", "email");
+  if (!isEmail(email)) return fail(`Enter your work email, like ${exampleEmail()}.`, "email");
   const person = await lookupPerson(email);
-  if (!person) return fail("No account uses this email.", "email");
-  if (person.status === "invited") return fail("This account is not activated yet. Use Create account to activate it.", "email");
-  if (person.status === "deactivated") return fail("This account has been deactivated. Contact the research office.", "email");
+  if (!person && !(await isAdminEmail(email))) return fail("No account uses this email.", "email");
+  if (person?.status === "invited") return fail("This account is not activated yet. Use Create account to activate it.", "email");
+  if (person?.status === "deactivated") return fail("This account has been deactivated. Contact the research office.", "email");
   const sent = await sendCode(email);
   if ("ok" in sent) return sent;
-  return { ok: true, email, masked: maskEmail(email), demoCode: sent.demoCode };
+  return { ok: true, email, masked: maskEmail(email), codeLength: sent.demoCode?.length ?? CODE_LENGTH, demoCode: sent.demoCode };
 }
 
 export async function verifyReset(emailRaw: string, code: string): Promise<{ ok: true } | Fail> {
-  if (!/^\d{6,8}$/.test(code)) return fail("Enter all the digits of the code.", "code");
+  if (!/^\d{6,10}$/.test(code)) return fail("Enter all the digits of the code.", "code");
   if (!(await verifyCode(emailRaw.trim().toLowerCase(), code))) return fail("That code is not right or has expired. Check it and try again.", "code");
   return { ok: true };
 }

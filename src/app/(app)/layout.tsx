@@ -11,7 +11,7 @@ export default function AppLayout({ children }: LayoutProps<"/">) {
       <a className="skip-link" href="#content">
         Skip to content
       </a>
-      <Sidebar />
+      <Sidebar demo={process.env.FA_DEMO_MODE === "true"} />
       <main className="main" id="content" tabIndex={-1}>
         <div className="wrap">
           <Topbar />

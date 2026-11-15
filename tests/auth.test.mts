@@ -104,6 +104,14 @@ describe("sign-in and privacy (Supabase)", { skip: !canReachSupabase && "needs .
     assert.equal(changed?.length ?? 0, 0, "the update must match no rows");
   });
 
+  it("does not let visitors or members ask which emails belong to admins", async () => {
+    for (const c of [client(), member]) {
+      const { data, error } = await c.rpc("admin_email_exists", { p_email: ADMIN });
+      assert.ok(error, "only the server (secret key) may call this");
+      assert.notEqual(data, true);
+    }
+  });
+
   it("keeps the privacy helpers out of the public API", async () => {
     const { error } = await member.rpc("can_see_person" as never, { pid: "00000000-0000-0000-0000-000000000000" } as never);
     assert.ok(error, "private helpers must not be callable");

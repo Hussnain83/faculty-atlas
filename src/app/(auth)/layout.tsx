@@ -1,6 +1,7 @@
 import { AuthStage } from "@/components/auth/AuthStage";
 import { Icon } from "@/components/ui/Icon";
 import "./auth.css";
+import { ORG } from "@/lib/org";
 
 /** Sign-in, activation and reset share this split screen: 3D stage on the left, the form card on the right. */
 export default function AuthLayout({ children }: LayoutProps<"/">) {
@@ -14,7 +15,7 @@ export default function AuthLayout({ children }: LayoutProps<"/">) {
           <Icon name={demo ? "info" : "lock"} />
           {demo
             ? "Demo mode: sign-in codes appear on screen and no email is sent."
-            : "Need help signing in? Contact research.office@northfield.edu."}
+            : `Need help signing in? Contact ${ORG.supportEmail}.`}
         </p>
       </div>
     </div>

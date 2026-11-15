@@ -10,6 +10,7 @@ import { Avatar } from "@/components/ui/Avatar";
 import { Icon, type IconName } from "@/components/ui/Icon";
 import { GROUP_COLOR_VAR } from "@/lib/ui";
 import { animateWhileVisible } from "@/lib/visibility";
+import { ORG } from "@/lib/org";
 
 const ACT_KIND: Record<OverviewData["activity"][number]["kind"], { icon: IconName; c: string; label: string }> = {
   publication: { icon: "book", c: "var(--iris)", label: "Papers" },
@@ -215,7 +216,7 @@ export function OverviewView({ data }: { data: OverviewData }) {
             <span className="gx-ring r1" aria-hidden="true" />
             <span className="gx-ring r2" aria-hidden="true" />
             <div className="gx-core" aria-hidden="true">
-              <b>Northfield</b>
+              <b>{ORG.short}</b>
               <small>{people.length} researchers</small>
             </div>
             {groups.map((g, i) => (

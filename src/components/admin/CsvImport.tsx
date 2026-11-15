@@ -5,11 +5,12 @@ import { useMemo, useState, useTransition } from "react";
 import { importPeople, type ImportResult, type ImportRow } from "@/app/(app)/people/actions";
 import { Icon } from "@/components/ui/Icon";
 import { CSV_HEADERS, parseCsv, validatePerson, type PersonInput } from "@/lib/validation";
+import { ORG } from "@/lib/org";
 
 const TEMPLATE =
   "full_name,email,title,department,office,phone_ext,joined_year,groups\n" +
-  "Dr. Sara Malik,s.malik@northfield.edu,Assistant Professor,Computer Science,Block C · Room 210,Ext. 4410,2024,AI\n" +
-  "Bilal Ahmed,b.ahmed@northfield.edu,Lecturer,Mathematics,,,2025,DS;LS\n";
+  `Dr. Sara Malik,s.malik@${ORG.emailDomain},Assistant Professor,Computer Science,Block C · Room 210,Ext. 4410,2024,AI\n` +
+  `Bilal Ahmed,b.ahmed@${ORG.emailDomain},Lecturer,Mathematics,,,2025,DS;LS\n`;
 
 type Parsed = { rows: (ImportRow & { _problem?: string })[]; unknownHeaders: string[]; missing: string[] };
 

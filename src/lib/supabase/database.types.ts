@@ -238,6 +238,9 @@ isOneToOne: false
             "activate_my_account":
 { Args: Record<PropertyKey, never>; Returns: boolean
                            },
+"admin_email_exists":
+{ Args: { "p_email": string }; Returns: boolean
+                           },
 "group_publications":
 { Args: { "gid": string }; Returns: {
               "authors": Json,"citations": number,"doi": string,"external_authors": (string)[],"id": string,"kind": Database["public"]['Enums']["publication_kind"],"member_ids": (string)[],"title": string,"venue": string,"year": number

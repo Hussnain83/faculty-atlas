@@ -6,6 +6,7 @@ import { demoSignIn, signIn, type SignInState } from "@/app/(auth)/actions";
 import { AuthTabs } from "@/components/auth/AuthTabs";
 import { Field, SubmitButton, useShake } from "@/components/auth/parts";
 import { Icon } from "@/components/ui/Icon";
+import { ORG } from "@/lib/org";
 
 const NOTICES: Record<string, string> = {
   deactivated: "This account has been deactivated. Contact the research office.",
@@ -64,7 +65,7 @@ export function LoginForm({ next, notice, demo }: { next: string; notice?: strin
       <AuthTabs active="login" />
       <div className="af-step">
         <h2>Welcome back</h2>
-        <p className="af-sub">Sign in with your Northfield email.</p>
+        <p className="af-sub">Sign in with your {ORG.short} email.</p>
         {notice && NOTICES[notice] && (
           <div className="af-notfound">
             <Icon name="info" />

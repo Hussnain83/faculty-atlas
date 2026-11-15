@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef } from "react";
 import { BrandMark } from "@/components/ui/BrandMark";
 import { Icon } from "@/components/ui/Icon";
+import { ORG } from "@/lib/org";
 
 /**
  * Left side of the sign-in screens: a rotating 3D ring of profile cards.
@@ -60,7 +61,7 @@ export function AuthStage() {
         <BrandMark />
         <div>
           <b>Faculty Atlas</b>
-          <small>Northfield University</small>
+          <small>{ORG.name}</small>
         </div>
       </Link>
       <div className="deck-wrap" aria-hidden="true">
@@ -105,7 +106,7 @@ export function AuthStage() {
           <br />
           beautifully on record.
         </h1>
-        <p>Profiles, publications and research groups for Northfield University, in one place.</p>
+        <p>Profiles, publications and research groups for {ORG.name}, in one place.</p>
         <ul className="auth-feats">
           <li>
             <Icon name="shield" />

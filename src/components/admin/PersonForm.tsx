@@ -3,6 +3,7 @@
 import { useKeptForm } from "@/lib/use-kept-form";
 import type { FormState } from "@/app/(app)/people/actions";
 import { Icon } from "@/components/ui/Icon";
+import { ORG, exampleEmail } from "@/lib/org";
 
 type Person = {
   full_name: string;
@@ -50,12 +51,12 @@ export function PersonForm({
   return (
     <form onSubmit={onSubmit} className="form-grid" noValidate>
       {field("full_name", "Full name", { required: true, placeholder: "Dr. Sara Malik", span: true })}
-      {field("email", "Work email", { type: "email", required: true, placeholder: "s.malik@northfield.edu", span: true })}
+      {field("email", "Work email", { type: "email", required: true, placeholder: exampleEmail("s.malik"), span: true })}
       {field("title", "Title", { placeholder: "Assistant Professor" })}
       {field("department", "Department", { placeholder: "Computer Science" })}
       {field("office", "Office", { placeholder: "Block C · Room 214" })}
       {field("phone_ext", "Phone extension", { placeholder: "Ext. 4127" })}
-      {field("joined_year", "Joined Northfield (year)", { type: "number", placeholder: "2024" })}
+      {field("joined_year", `Joined ${ORG.short} (year)`, { type: "number", placeholder: "2024" })}
       {groups && groups.length > 0 && (
         <fieldset className="form-field span-2">
           <legend>Add to groups (optional)</legend>

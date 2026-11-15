@@ -120,7 +120,7 @@ export function ResetFlow() {
               </div>
             )}
             <form className="af-form" onSubmit={(e) => e.preventDefault()} noValidate>
-              <OtpInput key={`${sent.demoCode ?? sent.masked}-${attempt}`} length={sent.demoCode?.length ?? 6} onComplete={checkCode} error={err("code")} />
+              <OtpInput key={`${sent.demoCode ?? sent.masked}-${attempt}`} length={sent.codeLength} onComplete={checkCode} error={err("code")} />
               {busy && <p className="pw-label">Verifying…</p>}
             </form>
             <p className="af-foot">

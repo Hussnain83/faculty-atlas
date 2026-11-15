@@ -14,6 +14,7 @@ import {
 } from "@/app/(app)/profile/actions";
 import { Status } from "@/components/profile/basics";
 import { Icon } from "@/components/ui/Icon";
+import { ORG } from "@/lib/org";
 
 type Action = (prev: Result | null, form: FormData) => Promise<Result>;
 
@@ -137,7 +138,7 @@ function ExperienceFields({ e, bad }: { e?: Experience; bad: (f: string) => stri
       </div>
       <div className="form-field span-2">
         <label htmlFor="ex-org">Organisation</label>
-        <input id="ex-org" name="organization" className="input" defaultValue={e?.organization} placeholder="Northfield University · Computer Science" />
+        <input id="ex-org" name="organization" className="input" defaultValue={e?.organization} placeholder={`${ORG.name} · Computer Science`} />
       </div>
       <div className={`form-field${bad("start_year")}`}>
         <label htmlFor="ex-start">Start year</label>
@@ -349,7 +350,7 @@ function PublicationFields({ p, bad, colleagues, canEditAuthors }: { p?: Publica
       setCitations(String(r.citations));
       const known = new Set(colleagues.map((c) => c.full_name.replace(/^(Dr\.|Prof\.)\s+/, "").split(" ").slice(-1)[0].toLowerCase()));
       setExternal(r.authors.filter((a) => !known.has(a.split(" ").slice(-1)[0].toLowerCase())).join(", "));
-      setLookup(`Filled from Crossref. Check the details, then tick any co-authors from Northfield below.`);
+      setLookup(`Filled from Crossref. Check the details, then tick any co-authors from ${ORG.short} below.`);
     });
 
   return (
@@ -389,13 +390,13 @@ function PublicationFields({ p, bad, colleagues, canEditAuthors }: { p?: Publica
         <input id="pb-cites" name="citations" type="number" min={0} className="input" value={citations} onChange={(e) => setCitations(e.target.value)} />
       </div>
       <div className="form-field">
-        <label htmlFor="pb-ext">Co-authors outside Northfield</label>
+        <label htmlFor="pb-ext">Co-authors outside {ORG.short}</label>
         <input id="pb-ext" name="external_authors" className="input" value={external} onChange={(e) => setExternal(e.target.value)} placeholder="S. Ahmed, J. Park" />
       </div>
       {canEditAuthors ? (
         colleagues.length > 0 && (
           <fieldset className="form-field span-2">
-            <legend>Co-authors at Northfield (people in your groups)</legend>
+            <legend>Co-authors at {ORG.short} (people in your groups)</legend>
             <div className="check-chips">
               {colleagues.map((c) => (
                 <label key={c.id} className="check-chip">
@@ -421,7 +422,7 @@ function PublicationFields({ p, bad, colleagues, canEditAuthors }: { p?: Publica
         )
       ) : (
         <p className="muted span-2" style={{ fontSize: 12.5 }}>
-          Only the person who added this paper can change its Northfield co-authors.
+          Only the person who added this paper can change its {ORG.short} co-authors.
         </p>
       )}
     </>

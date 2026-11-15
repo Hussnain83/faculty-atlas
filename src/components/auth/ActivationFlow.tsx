@@ -241,7 +241,7 @@ export function ActivationFlow({ demo, resume }: { demo: boolean; resume: Profil
               </div>
             )}
             <form className="af-form" onSubmit={(e) => e.preventDefault()} noValidate>
-              <OtpInput key={`${sent.demoCode ?? sent.masked}-${attempt}`} length={sent.demoCode?.length ?? 6} onComplete={submitCode} error={err("code")} />
+              <OtpInput key={`${sent.demoCode ?? sent.masked}-${attempt}`} length={sent.codeLength} onComplete={submitCode} error={err("code")} />
               {busy && (
                 <p className="pw-label" aria-live="polite">
                   Verifying…

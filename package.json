@@ -9,6 +9,7 @@
     "lint": "eslint",
     "test": "node --env-file-if-exists=.env.local --experimental-strip-types --no-warnings=ExperimentalWarning --test tests/auth.test.mts",
     "test:all": "npm test && npm run db:test",
+    "admin:create": "node --env-file-if-exists=.env.production.local scripts/create-admin.mjs",
     "db:push": "supabase db push --remote",
     "db:seed:generate": "node scripts/generate-seed.mjs",
     "db:accounts": "node --env-file=.env.local scripts/create-auth-accounts.mjs",

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Icon, ICON_NAMES } from "@/components/ui/Icon";
+import { exampleEmail } from "@/lib/org";
 
 export const metadata: Metadata = { title: "Design system" };
 
@@ -116,7 +117,7 @@ export default function DesignPage() {
           <label className="eyebrow" htmlFor="demo-input">
             Input
           </label>
-          <input id="demo-input" className="input" placeholder="name@northfield.edu" />
+          <input id="demo-input" className="input" placeholder={exampleEmail()} />
           <div className="actions">
             <span className="av" style={{ ["--s" as string]: "44px" }}>
               AR

@@ -3,6 +3,7 @@ import { Bricolage_Grotesque, Geist, Geist_Mono } from "next/font/google";
 import { Aurora } from "@/components/background/Aurora";
 import { FloatingNumbers } from "@/components/background/FloatingNumbers";
 import "./globals.css";
+import { ORG } from "@/lib/org";
 
 const bricolage = Bricolage_Grotesque({
   variable: "--font-bricolage",
@@ -25,7 +26,7 @@ export const metadata: Metadata = {
     default: "Faculty Atlas",
     template: "%s · Faculty Atlas",
   },
-  description: "Research groups, profiles and publications for Northfield University.",
+  description: `Research groups, profiles and publications for ${ORG.name}.`,
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

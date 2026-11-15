@@ -14,6 +14,7 @@ import { formatBytes } from "@/lib/image";
 import { hIndex, topCounts, yearSeries } from "@/lib/stats";
 import { GROUP_COLOR_VAR } from "@/lib/ui";
 import { animateWhileVisible } from "@/lib/visibility";
+import { ORG } from "@/lib/org";
 
 const CAT_COLOR = { research: "var(--lagoon)", tools: "var(--iris)", teaching: "var(--coral)" } as const;
 const CAT_LABEL = { research: "Research", tools: "Tools", teaching: "Teaching" } as const;
@@ -390,7 +391,7 @@ export function ProfileView({ data }: { data: ProfileData }) {
             </ul>
             <div className="ph-facts enter" style={{ ["--d" as string]: ".95s" }}>
               <span>
-                <b>{coauthors}</b> co-authors at Northfield
+                <b>{coauthors}</b> co-authors at {ORG.short}
               </span>
               {data.joinedYear && (
                 <span>
